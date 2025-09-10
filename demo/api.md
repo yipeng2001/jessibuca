@@ -271,6 +271,38 @@ worker地址
 4. audio 是否显示声音按钮
 5. record 是否显示录制按钮
 
+### danmaku
+
+- **类型**：`boolean`
+- **默认值**：`false`
+- **用法**： 是否启用弹幕功能
+
+### danmakuConfig
+
+- **类型**：`object`
+- **默认值**：
+```js
+{
+    fontSize: 14,           // 弹幕字体大小(像素)
+    speed: 3,              // 弹幕滚动速度(秒)
+    opacity: 0.8,          // 弹幕透明度(0-1)
+    maxDisplay: 30,        // 最大同时显示弹幕数量
+    inputPlaceholder: '输入弹幕...', // 输入框占位符
+    colors: ['#FFFFFF', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'], // 可选颜色
+    defaultColor: '#FFFFFF' // 默认颜色
+}
+```
+- **用法**： 弹幕配置选项，只有当 `danmaku: true` 时生效
+
+弹幕配置说明：
+1. `fontSize` - 弹幕文字大小，以像素为单位
+2. `speed` - 弹幕从右侧滚动到左侧消失的时间，以秒为单位
+3. `opacity` - 弹幕透明度，0为完全透明，1为完全不透明
+4. `maxDisplay` - 同时在屏幕上显示的最大弹幕数量，超出会被忽略
+5. `inputPlaceholder` - 弹幕输入框的占位符文字
+6. `colors` - 用户可选择的弹幕颜色数组
+7. `defaultColor` - 默认弹幕颜色
+
 ### keepScreenOn
 
 - **类型**：`boolean`
@@ -760,6 +792,61 @@ var result = jessibuca.isRecording()
 console.log(result) // true
 ```
 
+### sendDanmaku(text, color)
+
+- **用法**： 发送弹幕消息
+- **参数**：
+    - `{string} text` 弹幕文本内容（必需）
+    - `{string} color` 弹幕颜色，十六进制格式（可选，默认使用配置中的 defaultColor）
+
+```js
+// 发送白色弹幕
+jessibuca.sendDanmaku('这是一条弹幕');
+
+// 发送红色弹幕
+jessibuca.sendDanmaku('这是一条红色弹幕', '#FF0000');
+```
+
+### clearDanmaku()
+
+- **用法**： 清空屏幕上所有弹幕
+
+```js
+jessibuca.clearDanmaku();
+```
+
+### toggleDanmaku()
+
+- **用法**： 切换弹幕显示状态（显示/隐藏）
+
+```js
+jessibuca.toggleDanmaku();
+```
+
+### getDanmakuEnabled()
+
+- **返回值**：`boolean`
+- **用法**： 获取弹幕是否启用状态
+
+```js
+var enabled = jessibuca.getDanmakuEnabled();
+console.log(enabled); // true 或 false
+```
+
+### setDanmakuConfig(config)
+
+- **用法**： 更新弹幕配置
+- **参数**：
+    - `{object} config` 弹幕配置对象（部分更新）
+
+```js
+// 更新弹幕字体大小和滚动速度
+jessibuca.setDanmakuConfig({
+    fontSize: 18,
+    speed: 4
+});
+```
+
 ### toggleControlBar(isShow)
 
 - **用法**： 切换底部控制条 隐藏/显示
@@ -1149,6 +1236,46 @@ jessibuca.on("playToRenderTimes", function (times) {
     allTimestamp: '' // videoStart - playInitStart
 }
 
+```
+
+### danmakuSend
+
+监听弹幕发送事件，当用户发送弹幕时触发。
+
+```js
+jessibuca.on("danmakuSend", function (danmaku) {
+    console.log("发送了弹幕:", danmaku)
+})
+```
+
+事件回调参数说明：
+```js
+{
+    id: 1,                    // 弹幕唯一ID
+    text: "弹幕内容",          // 弹幕文本
+    color: "#FFFFFF",         // 弹幕颜色
+    timestamp: 1234567890123  // 发送时间戳
+}
+```
+
+### danmakuShow
+
+监听弹幕显示事件，当弹幕开始在屏幕上显示时触发。
+
+```js
+jessibuca.on("danmakuShow", function (danmaku) {
+    console.log("弹幕开始显示:", danmaku)
+})
+```
+
+### danmakuClear
+
+监听弹幕清空事件，当调用 `clearDanmaku()` 清空所有弹幕时触发。
+
+```js
+jessibuca.on("danmakuClear", function () {
+    console.log("弹幕已清空")
+})
 ```
 
 ## 支持作者
