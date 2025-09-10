@@ -544,4 +544,113 @@
         }
 
     }
+
+    // Danmaku styles
+    .jessibuca-danmaku-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 20;
+
+        .jessibuca-danmaku-display {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 40px; // Leave space for controls
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .jessibuca-danmaku-item {
+            position: absolute;
+            right: 0;
+            white-space: nowrap;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
+            animation: danmaku-scroll linear forwards;
+            z-index: 21;
+        }
+
+        .jessibuca-danmaku-input-container {
+            position: absolute;
+            bottom: 45px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+            pointer-events: auto;
+            z-index: 25;
+
+            .jessibuca-danmaku-input {
+                flex: 1;
+                padding: 8px 12px;
+                border: none;
+                border-radius: 4px;
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                font-size: 14px;
+                outline: none;
+
+                &::placeholder {
+                    color: rgba(255, 255, 255, 0.6);
+                }
+
+                &:focus {
+                    background: rgba(0, 0, 0, 0.9);
+                }
+            }
+
+            .jessibuca-danmaku-color {
+                padding: 8px;
+                border: none;
+                border-radius: 4px;
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                outline: none;
+                cursor: pointer;
+            }
+
+            .jessibuca-danmaku-send {
+                padding: 8px 16px;
+                border: none;
+                border-radius: 4px;
+                background: #007bff;
+                color: white;
+                cursor: pointer;
+                font-size: 14px;
+                transition: background-color 0.2s;
+
+                &:hover {
+                    background: #0056b3;
+                }
+
+                &:active {
+                    background: #004085;
+                }
+            }
+        }
+    }
+
+    @keyframes danmaku-scroll {
+        from {
+            transform: translateX(0);
+        }
+        to {
+            transform: translateX(-100vw);
+        }
+    }
+
+    // Danmaku toggle icon
+    .jessibuca-icon-danmaku {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M2 12C2 6.48 6.48 2 12 2s10 4.48 10 10-4.48 10-10 10S2 17.52 2 12zm4.64-1.56L12 8l5.36 2.44L12 13 6.64 10.44zM12 15l5.36-2.44v3.8L12 18l-5.36-1.64v-3.8z'/%3E%3C/svg%3E");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
 }

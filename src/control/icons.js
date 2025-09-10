@@ -9,6 +9,7 @@ const iconsMap = {
     fullscreenExit: '退出全屏',
     record: '录制',
     recordStop: '停止录制',
+    danmaku: '弹幕',
 }
 
 export default Object.keys(iconsMap).reduce((icons, key) => {

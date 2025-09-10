@@ -134,6 +134,13 @@
                     <button v-if="!recording" @click="startRecord">录制</button>
                     <button v-if="!recording" @click="stopAndSaveRecord">暂停录制</button>
                 </template>
+                
+                <!-- Danmaku test buttons -->
+                <div style="margin-top: 10px;">
+                    <button @click="sendTestDanmaku">发送测试弹幕</button>
+                    <button @click="clearAllDanmaku">清空弹幕</button>
+                    <button @click="toggleDanmakuDisplay">切换弹幕显示</button>
+                </div>
 
             </div>
         </div>
@@ -230,6 +237,14 @@ export default {
                         timeout: 10,
                         recordType: 'mp4',
                         isFlv: this.isFlv,
+                        danmaku: true, // Enable danmaku
+                        danmakuConfig: {
+                            fontSize: 16,
+                            speed: 5,
+                            opacity: 0.8,
+                            maxDisplay: 20,
+                            inputPlaceholder: '输入弹幕内容...',
+                        },
                     },
                     options
                 )
@@ -332,6 +347,19 @@ export default {
             jessibuca.on('playToRenderTimes', (times) => {
                 console.log(times);
             })
+
+            // Danmaku event listeners
+            jessibuca.on('danmakuSend', (danmaku) => {
+                console.log('Danmaku sent:', danmaku);
+            });
+
+            jessibuca.on('danmakuShow', (danmaku) => {
+                console.log('Danmaku shown:', danmaku);
+            });
+
+            jessibuca.on('danmakuClear', () => {
+                console.log('Danmaku cleared');
+            });
 
             // this.play();
             // console.log(this.jessibuca);
@@ -439,6 +467,29 @@ export default {
 
         toggleControlBar() {
             this.$options.jessibuca.toggleControlBar();
+        },
+
+        // Danmaku test methods
+        sendTestDanmaku() {
+            const messages = [
+                '这是一条测试弹幕',
+                '弹幕功能测试中...',
+                'Hello Danmaku!',
+                '很好很强大！',
+                '666666'
+            ];
+            const colors = ['#FFFFFF', '#FF0000', '#00FF00', '#0000FF', '#FFFF00'];
+            const message = messages[Math.floor(Math.random() * messages.length)];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            this.$options.jessibuca.sendDanmaku(message, color);
+        },
+
+        clearAllDanmaku() {
+            this.$options.jessibuca.clearDanmaku();
+        },
+
+        toggleDanmakuDisplay() {
+            this.$options.jessibuca.toggleDanmaku();
         }
     },
 };
