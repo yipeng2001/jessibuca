@@ -68,9 +68,24 @@ export default class Control {
             }
         }
 
+        if (this.$danmakuContainer) {
+            const result = removeElement(this.$danmakuContainer)
+            if (!result) {
+                const $danmakuContainer = this.player.$container.querySelector('.jessibuca-danmaku-container');
+                if ($danmakuContainer && this.player.$container) {
+                    this.player.$container.removeChild($danmakuContainer);
+                }
+            }
+        }
+
         if(this.player.$container){
             this.player.$container.classList.remove('jessibuca-controls-show-auto-hide');
             this.player.$container.classList.remove('jessibuca-controls-show');
+        }
+
+        // Clean up danmaku
+        if (this.player._opt.danmaku) {
+            this.clearDanmaku && this.clearDanmaku();
         }
 
         this.player.debug.log('control', 'destroy');

@@ -21,6 +21,18 @@ export default (player, control) => {
                 ${options.loadingText ? `<div class="jessibuca-loading-text">${options.loadingText}</div>` : ''}
             </div>
             ${options.hasControl && operateBtns.play ? `<div class="jessibuca-play-big"></div>` : ''}
+            ${options.danmaku ? `
+                <div class="jessibuca-danmaku-container">
+                    <div class="jessibuca-danmaku-display"></div>
+                    <div class="jessibuca-danmaku-input-container">
+                        <input type="text" class="jessibuca-danmaku-input" placeholder="${options.danmakuConfig.inputPlaceholder}" />
+                        <select class="jessibuca-danmaku-color">
+                            ${options.danmakuConfig.colors.map(color => `<option value="${color}" style="color: ${color}">${color}</option>`).join('')}
+                        </select>
+                        <button class="jessibuca-danmaku-send">发送</button>
+                    </div>
+                </div>
+            ` : ''}
             ${options.hasControl ? `
                 <div class="jessibuca-recording">
                     <div class="jessibuca-recording-red-point"></div>
@@ -33,6 +45,7 @@ export default (player, control) => {
                     <div class="jessibuca-controls-bottom">
                         <div class="jessibuca-controls-left">
                             ${options.showBandwidth ? `<div class="jessibuca-controls-item jessibuca-speed"></div>` : ''}
+                            ${options.danmaku ? `<div class="jessibuca-controls-item jessibuca-danmaku-toggle">${icons.danmaku}</div>` : ''}
                         </div>
                         <div class="jessibuca-controls-right">
                              ${operateBtns.audio ? `
@@ -153,5 +166,30 @@ export default (player, control) => {
 
     Object.defineProperty(control, '$speed', {
         value: player.$container.querySelector('.jessibuca-speed'),
+    });
+
+    // Danmaku elements
+    Object.defineProperty(control, '$danmakuContainer', {
+        value: player.$container.querySelector('.jessibuca-danmaku-container'),
+    });
+
+    Object.defineProperty(control, '$danmakuDisplay', {
+        value: player.$container.querySelector('.jessibuca-danmaku-display'),
+    });
+
+    Object.defineProperty(control, '$danmakuInput', {
+        value: player.$container.querySelector('.jessibuca-danmaku-input'),
+    });
+
+    Object.defineProperty(control, '$danmakuColor', {
+        value: player.$container.querySelector('.jessibuca-danmaku-color'),
+    });
+
+    Object.defineProperty(control, '$danmakuSend', {
+        value: player.$container.querySelector('.jessibuca-danmaku-send'),
+    });
+
+    Object.defineProperty(control, '$danmakuToggle', {
+        value: player.$container.querySelector('.jessibuca-danmaku-toggle'),
     });
 }

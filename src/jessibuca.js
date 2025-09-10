@@ -912,6 +912,60 @@ class Jessibuca extends Emitter {
             this.debug.warn('Jessibuca', 'init decoder worker timeout and pause play error', e)
         })
     }
+
+    /**
+     * 发送弹幕
+     * @param text {String} 弹幕文本
+     * @param color {String} 弹幕颜色 (可选)
+     */
+    sendDanmaku(text, color) {
+        this.debug.log(this.TAG_NAME, 'sendDanmaku()', text, color);
+        if (this.player) {
+            return this.player.sendDanmaku(text, color);
+        }
+    }
+
+    /**
+     * 清空所有弹幕
+     */
+    clearDanmaku() {
+        this.debug.log(this.TAG_NAME, 'clearDanmaku()');
+        if (this.player) {
+            return this.player.clearDanmaku();
+        }
+    }
+
+    /**
+     * 切换弹幕显示状态
+     */
+    toggleDanmaku() {
+        this.debug.log(this.TAG_NAME, 'toggleDanmaku()');
+        if (this.player) {
+            return this.player.toggleDanmaku();
+        }
+    }
+
+    /**
+     * 获取弹幕启用状态
+     * @returns {Boolean}
+     */
+    getDanmakuEnabled() {
+        if (this.player) {
+            return this.player.getDanmakuEnabled();
+        }
+        return false;
+    }
+
+    /**
+     * 设置弹幕配置
+     * @param config {Object} 弹幕配置对象
+     */
+    setDanmakuConfig(config) {
+        this.debug.log(this.TAG_NAME, 'setDanmakuConfig()', config);
+        if (this.player) {
+            return this.player.setDanmakuConfig(config);
+        }
+    }
 }
 
 

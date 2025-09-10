@@ -132,6 +132,44 @@ export default (player, control) => {
         player.fullscreen = false;
     })
 
+    // Danmaku events
+    if (player._opt.danmaku) {
+        proxy(control.$danmakuSend, 'click', (e) => {
+            e.stopPropagation();
+            const text = control.$danmakuInput.value.trim();
+            const color = control.$danmakuColor.value;
+            if (text) {
+                control.sendDanmaku(text, color);
+                control.$danmakuInput.value = '';
+            }
+        });
+
+        proxy(control.$danmakuInput, 'keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const text = control.$danmakuInput.value.trim();
+                const color = control.$danmakuColor.value;
+                if (text) {
+                    control.sendDanmaku(text, color);
+                    control.$danmakuInput.value = '';
+                }
+            }
+        });
+
+        proxy(control.$danmakuToggle, 'click', (e) => {
+            e.stopPropagation();
+            control.toggleDanmaku();
+        });
+
+        proxy(control.$danmakuInput, 'click', (e) => {
+            e.stopPropagation();
+        });
+
+        proxy(control.$danmakuColor, 'click', (e) => {
+            e.stopPropagation();
+        });
+    }
+
     if (player._opt.hasControl && player._opt.controlAutoHide) {
         //
         proxy(player.$container, 'mouseover', () => {

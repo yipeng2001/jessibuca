@@ -947,4 +947,36 @@ export default class Player extends Emitter {
     isDestroyedOrClosed() {
         return this.isDestroyed() || this.isClosed();
     }
+
+    // Danmaku methods
+    sendDanmaku(text, color) {
+        if (this._opt.danmaku && this.control && this.control.sendDanmaku) {
+            return this.control.sendDanmaku(text, color);
+        }
+    }
+
+    clearDanmaku() {
+        if (this._opt.danmaku && this.control && this.control.clearDanmaku) {
+            return this.control.clearDanmaku();
+        }
+    }
+
+    toggleDanmaku() {
+        if (this._opt.danmaku && this.control && this.control.toggleDanmaku) {
+            return this.control.toggleDanmaku();
+        }
+    }
+
+    getDanmakuEnabled() {
+        if (this._opt.danmaku && this.control) {
+            return this.control.danmakuEnabled;
+        }
+        return false;
+    }
+
+    setDanmakuConfig(config) {
+        if (this._opt.danmaku) {
+            this._opt.danmakuConfig = Object.assign(this._opt.danmakuConfig, config);
+        }
+    }
 }

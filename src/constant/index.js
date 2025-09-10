@@ -75,6 +75,16 @@ export const DEFAULT_PLAYER_OPTIONS = {
     useWebFullScreen: false, // use web full screen
     loadingDecoderWorkerTimeout: 10, //
     autoUseSystemFullScreen: true, // auto system full screen
+    danmaku: false, // enable danmaku functionality
+    danmakuConfig: {
+        fontSize: 14, // danmaku font size
+        speed: 3, // danmaku scroll speed (seconds)
+        opacity: 0.8, // danmaku opacity
+        maxDisplay: 30, // maximum number of danmaku on screen
+        inputPlaceholder: '输入弹幕...', // input placeholder text
+        colors: ['#FFFFFF', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'], // available colors
+        defaultColor: '#FFFFFF', // default color
+    }
 }
 
 
@@ -164,7 +174,10 @@ export const EVENTS = {
     videoWaiting: 'videoWaiting',
     videoTimeUpdate: 'videoTimeUpdate',
     videoSyncAudio: 'videoSyncAudio',
-    playToRenderTimes: 'playToRenderTimes'
+    playToRenderTimes: 'playToRenderTimes',
+    danmakuSend: 'danmakuSend',
+    danmakuShow: 'danmakuShow',
+    danmakuClear: 'danmakuClear'
 }
 
 
@@ -192,7 +205,10 @@ export const JESSIBUCA_EVENTS = {
     recordStart: EVENTS.recordStart,
     recordEnd: EVENTS.recordEnd,
     playToRenderTimes: EVENTS.playToRenderTimes,
-    volume: EVENTS.volume
+    volume: EVENTS.volume,
+    danmakuSend: EVENTS.danmakuSend,
+    danmakuShow: EVENTS.danmakuShow,
+    danmakuClear: EVENTS.danmakuClear
 }
 
 export const EVENTS_ERROR = {
