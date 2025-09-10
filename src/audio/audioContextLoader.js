@@ -2,6 +2,7 @@ import Emitter from "../utils/emitter";
 import {AUDIO_ENC_TYPE, AUDIO_SYNC_VIDEO_DIFF, EVENTS, VIDEO_ENC_TYPE} from "../constant";
 import {clamp, noop} from "../utils";
 
+// 总结：这段代码主要完成了音频播放系统的初始化工作，包括创建必要的音频节点、建立音频处理链路、初始化各种状态标志和配置参数，为后续的音频播放和音视频同步做准备。
 export default class AudioContextLoader extends Emitter {
     constructor(player) {
         super();
@@ -12,43 +13,48 @@ export default class AudioContextLoader extends Emitter {
         this.audioContextChannel = null;
 
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        //
+        // 音量控制节点
         this.gainNode = this.audioContext.createGain();
         // Get an AudioBufferSourceNode.
         // This is the AudioNode to use when we want to play an AudioBuffer
+        // 这是用于播放 AudioBuffer 时需要使用的 AudioNode
         const source = this.audioContext.createBufferSource();
-        // set the buffer in the AudioBufferSourceNode
+        
+        // set the buffer in the AudioBufferSourceNode 
+        // // 在 AudioBufferSourceNode 中设置缓冲区
         source.buffer = this.audioContext.createBuffer(1, 1, 22050);
         // connect the AudioBufferSourceNode to the
         // destination so we can hear the sound
+        // 将 AudioBufferSourceNode 连接到 destination
+// 这样我们才能听到声音
         source.connect(this.audioContext.destination);
         // noteOn as start
-        // start the source playing
+        // start the source playing  开始播放源
         if (source.noteOn) {
             source.noteOn(0);
         } else {
             source.start(0);
         }
         this.audioBufferSourceNode = source;
-        //
+      // 创建媒体流音频目标节点
         this.mediaStreamAudioDestinationNode = this.audioContext.createMediaStreamDestination();
-        //
+        //启用音频
         this.audioEnabled(true);
         // default setting 0
         this.gainNode.gain.value = 0;
         this._prevVolume = null;
-
+        // 初始化音量为 0（静音状态），并初始化上一次音量记录为 null。
         this.playing = false;
-        //
+        //音频视频同步选项 初始化音视频同步配置对象，diff 用于记录音视频时间差。
         this.audioSyncVideoOption = {
             diff: null
         };
 
-
+// 音频信息对象
         this.audioInfo = {
-            encType: '',
-            channels: '',
-            sampleRate: ''
+            encType: '',      // 编码类型
+            channels: '',     // 声道数
+            sampleRate: ''    // 采样率
         }
         this.init = false;
         this.hasAudio = false;
@@ -144,7 +150,7 @@ export default class AudioContextLoader extends Emitter {
             return;
         }
         const channels = this.audioInfo.channels;
-
+// 5. ScriptProcessorNode - 音频处理节点（已废弃，但仍在使用）
         const scriptNode = this.audioContext.createScriptProcessor(1024, 0, channels);
         // tips: if audio isStateSuspended  onaudioprocess method not working
         scriptNode.onaudioprocess = (audioProcessingEvent) => {
@@ -203,6 +209,7 @@ export default class AudioContextLoader extends Emitter {
         scriptNode.connect(this.gainNode);
         this.scriptNode = scriptNode;
         this.gainNode.connect(this.audioContext.destination);
+        // 6. MediaStreamDestination - 创建媒体流输出
         this.gainNode.connect(this.mediaStreamAudioDestinationNode);
         this.hasInitScriptNode = true;
     }

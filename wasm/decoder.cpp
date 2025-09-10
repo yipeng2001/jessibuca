@@ -115,7 +115,7 @@ public:
     {
         if (au_convert_ctx)
             swr_free(&au_convert_ctx);
-        if (out_buffer[0])
+        if (out_buffer[0]) 
             free(out_buffer[0]);
         //        emscripten_log(0, "FFMpegAudioDecoder destory");
     }
@@ -140,12 +140,13 @@ public:
                 }
                 break;
             case 7:
+            // 音频编解码器初始化部分 初始化 PCM A-Law 编解码器（电话质量音频，常用于VoIP）。
                 initCodec(AV_CODEC_ID_PCM_ALAW);
                 dec_ctx->channel_layout = AV_CH_LAYOUT_MONO;
-                dec_ctx->sample_rate = 8000;
-                dec_ctx->channels = 1;
-                avcodec_open2(dec_ctx, codec, NULL);
-                n_channel = 1;
+                dec_ctx->sample_rate = 8000; //8000Hz 采样率（电话质量）
+                dec_ctx->channels = 1; //单声道布局
+                avcodec_open2(dec_ctx, codec, NULL); //打开解码器，记录声道数，标记初始化完成。
+                n_channel = 1;//1个声道
                 initialized = true;
                 break;
             case 8:
@@ -172,6 +173,7 @@ public:
     {
         auto nb_samples = frame->nb_samples;
         auto bytes_per_sample = av_get_bytes_per_sample(AV_SAMPLE_FMT_FLTP);
+        // 获取音频帧的采样数和每个采样的字节数（FLTP = 浮点平面格式）。
         if (dec_ctx->sample_fmt == AV_SAMPLE_FMT_FLTP && sample_rate == dec_ctx->sample_rate && dec_ctx->channel_layout == n_channel)
         {
             jsObject.call<void>("playAudioPlanar", int(frame->data), nb_samples * bytes_per_sample * n_channel);
@@ -179,19 +181,39 @@ public:
         }
         if (!au_convert_ctx)
         {
-            au_convert_ctx = swr_alloc_set_opts(NULL, n_channel == 2 ? AV_CH_LAYOUT_STEREO : AV_CH_LAYOUT_MONO, AV_SAMPLE_FMT_FLTP, sample_rate,
-                                                dec_ctx->channel_layout, dec_ctx->sample_fmt, dec_ctx->sample_rate,
-                                                0, NULL);
-            auto ret = swr_init(au_convert_ctx);
+            au_convert_ctx = swr_alloc_set_opts(NULL, 
+                n_channel == 2 ? AV_CH_LAYOUT_STEREO : AV_CH_LAYOUT_MONO,  // 目标声道布局
+                AV_SAMPLE_FMT_FLTP,                                         // 目标格式
+                sample_rate,                                                // 目标采样率
+                dec_ctx->channel_layout,                                    // 源声道布局
+                dec_ctx->sample_fmt,                                        // 源格式
+                dec_ctx->sample_rate,                                       // 源采样率
+                0, NULL);
+            auto ret = swr_init(au_convert_ctx); //初始化重采样器。
             auto out_buffer_size = av_samples_get_buffer_size(NULL, n_channel, nb_samples, AV_SAMPLE_FMT_FLTP, 0);
             auto buffer = (uint8_t *)av_malloc(out_buffer_size);
-            out_buffer[0] = buffer;
+            // 左声道数据
+            out_buffer[0] = buffer;//计算输出缓冲区大小并分配内存。
+            // 右声道数据（如果是立体声）
             out_buffer[1] = buffer + (out_buffer_size / 2);
         }
-        // // 转换
+        // 执行音频格式转换
         auto ret = swr_convert(au_convert_ctx, out_buffer, nb_samples, (const uint8_t **)frame->data, nb_samples);
         while (ret > 0)
         {
+            /*
+            循环处理转换后的音频：发送转换后的数据给 JS 播放
+            继续转换剩余数据（如果有）
+            第二个 swr_convert 调用用于刷新内部缓冲区
+            音频格式说明
+                平面格式（Planar）： 平面格式：L L L L... | R R R R...
+                平面格式的优势：
+
+                SIMD 优化更容易
+                处理单个声道更高效
+                Web Audio API 原生支持
+
+            */
             jsObject.call<void>("playAudioPlanar", int(&out_buffer), ret, timestamp);
             ret = swr_convert(au_convert_ctx, out_buffer, nb_samples, (const uint8_t **)frame->data, 0);
         }
@@ -307,3 +329,12 @@ EMSCRIPTEN_BINDINGS(FFmpegVideoDecoder)
         .FUNC(clear)
         .FUNC(decode);
 }
+
+/*总结
+这段代码实现了：
+
+多格式支持：AAC、PCM A-Law、PCM μ-Law
+格式统一：将所有音频转换为 FLTP 格式
+重采样：支持不同采样率的转换
+与 JS 交互：解码后的音频传递给 JavaScript 播放
+这是 Jessibuca 播放器 WebAssembly 音频解码的核心实现。*/
