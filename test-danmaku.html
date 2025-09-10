@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jessibuca Danmaku Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        #player {
+            width: 640px;
+            height: 398px;
+            background: #000;
+            position: relative;
+            margin: 20px auto;
+        }
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .controls button {
+            margin: 5px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        .controls button:hover {
+            background: #0056b3;
+        }
+        .test-info {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Jessibuca 弹幕功能测试</h1>
+        
+        <div class="test-info">
+            <h3>测试说明：</h3>
+            <ul>
+                <li>本页面用于测试新添加的弹幕功能</li>
+                <li>弹幕配置已启用：字体大小16px，滚动速度5秒，透明度0.8</li>
+                <li>点击"发送测试弹幕"按钮可发送随机弹幕</li>
+                <li>弹幕输入框位于播放器底部，支持多种颜色选择</li>
+                <li>支持键盘回车发送弹幕</li>
+            </ul>
+        </div>
+
+        <div id="player"></div>
+
+        <div class="controls">
+            <button onclick="sendTestDanmaku()">发送测试弹幕</button>
+            <button onclick="sendRandomDanmaku()">发送随机弹幕</button>
+            <button onclick="clearDanmaku()">清空弹幕</button>
+            <button onclick="toggleDanmaku()">切换弹幕显示</button>
+            <button onclick="showAPI()">显示API方法</button>
+        </div>
+
+        <div class="test-info">
+            <h3>弹幕配置：</h3>
+            <p><strong>fontSize:</strong> 16px | <strong>speed:</strong> 5s | <strong>opacity:</strong> 0.8 | <strong>maxDisplay:</strong> 20</p>
+            
+            <h3>事件日志：</h3>
+            <div id="log" class="log"></div>
+        </div>
+    </div>
+
+    <script src="dist/jessibuca.js"></script>
+    <script>
+        let player;
+        let danmakuCounter = 0;
+
+        function log(message) {
+            const logEl = document.getElementById('log');
+            const time = new Date().toLocaleTimeString();
+            logEl.innerHTML += `[${time}] ${message}\n`;
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        // Initialize player with danmaku enabled
+        function initPlayer() {
+            player = new Jessibuca({
+                container: document.getElementById('player'),
+                hasControl: true,
+                debug: false,
+                danmaku: true,
+                danmakuConfig: {
+                    fontSize: 16,
+                    speed: 5,
+                    opacity: 0.8,
+                    maxDisplay: 20,
+                    inputPlaceholder: '输入弹幕内容测试...',
+                    colors: ['#FFFFFF', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'],
+                    defaultColor: '#FFFFFF'
+                },
+                operateBtns: {
+                    fullscreen: true,
+                    screenshot: true,
+                    play: true,
+                    audio: true,
+                }
+            });
+
+            // Listen to danmaku events
+            player.on('danmakuSend', (danmaku) => {
+                log(`弹幕发送: "${danmaku.text}" (颜色: ${danmaku.color})`);
+            });
+
+            player.on('danmakuShow', (danmaku) => {
+                log(`弹幕显示: ID ${danmaku.id}`);
+            });
+
+            player.on('danmakuClear', () => {
+                log('弹幕已清空');
+            });
+
+            log('播放器初始化完成，弹幕功能已启用');
+        }
+
+        function sendTestDanmaku() {
+            danmakuCounter++;
+            const text = `测试弹幕 #${danmakuCounter}`;
+            const colors = ['#FFFFFF', '#FF0000', '#00FF00', '#0000FF', '#FFFF00'];
+            const color = colors[danmakuCounter % colors.length];
+            player.sendDanmaku(text, color);
+        }
+
+        function sendRandomDanmaku() {
+            const messages = [
+                '这是一条测试弹幕',
+                '弹幕功能很赞！',
+                'Hello Danmaku World!',
+                '666666',
+                '很好很强大',
+                '测试成功！',
+                '弹幕滚动效果不错',
+                'Nice work!',
+                '功能完美实现',
+                '继续加油！'
+            ];
+            const colors = ['#FFFFFF', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'];
+            const message = messages[Math.floor(Math.random() * messages.length)];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            player.sendDanmaku(message, color);
+        }
+
+        function clearDanmaku() {
+            player.clearDanmaku();
+        }
+
+        function toggleDanmaku() {
+            player.toggleDanmaku();
+            const enabled = player.getDanmakuEnabled();
+            log(`弹幕显示已${enabled ? '开启' : '关闭'}`);
+        }
+
+        function showAPI() {
+            const apiInfo = `
+弹幕API方法：
+- player.sendDanmaku(text, color): 发送弹幕
+- player.clearDanmaku(): 清空所有弹幕
+- player.toggleDanmaku(): 切换弹幕显示
+- player.getDanmakuEnabled(): 获取弹幕启用状态
+- player.setDanmakuConfig(config): 设置弹幕配置
+
+弹幕事件：
+- danmakuSend: 弹幕发送时触发
+- danmakuShow: 弹幕显示时触发
+- danmakuClear: 弹幕清空时触发
+            `;
+            alert(apiInfo);
+        }
+
+        // Auto-send danmaku for demo
+        function autoDanmaku() {
+            if (player && player.getDanmakuEnabled()) {
+                sendRandomDanmaku();
+            }
+            setTimeout(autoDanmaku, 3000 + Math.random() * 4000);
+        }
+
+        // Initialize when page loads
+        window.onload = function() {
+            initPlayer();
+            log('页面加载完成');
+            
+            // Start auto danmaku after 2 seconds
+            setTimeout(() => {
+                log('开始自动弹幕演示');
+                autoDanmaku();
+            }, 2000);
+        };
+    </script>
+</body>
+</html>
